@@ -1,0 +1,36 @@
+name: bee-js2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install @ethersphere/bee-js
+        run: |
+          npm init -y
+          npm install @ethersphere/bee-js
+
+      - name: Run the package
+        run: |
+          cat > run.js <<'EOF'
+          const { Bee } = require('@ethersphere/bee-js');
+          const pkg = require('@ethersphere/bee-js/package.json');
+          const bee = new Bee('http://localhost:1633');
+          console.log(`bee-js ${pkg.version} loaded, client points at ${bee.url}`);
+          EOF
+          node run.js
